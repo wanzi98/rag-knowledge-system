@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# 环境
+.env
+.venv
+env/
+
+# 数据（不包含原始文件，仅排除数据库）
+data/chroma_db/
+
+# IDE
+.vscode/
+.idea/
+
+# 系统
+.DS_Store
+Thumbs.db
+
+# 环境变量
+.env

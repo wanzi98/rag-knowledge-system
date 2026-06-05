@@ -1,0 +1,126 @@
+Python JSON 处理指南
+
+JSON（JavaScript Object Notation）是一种轻量级的数据交换格式，广泛应用于API通信和配置文件。
+
+Python 内置的 json 模块提供了四个核心函数：
+- json.dumps()：把Python对象变成JSON字符串
+- json.dumps() 的常用参数：ensure_ascii=False（保留中文）、indent=2（格式化缩进）
+- json.loads()：把JSON字符串解析成Python对象
+- json.dump() 和 json.load()：直接读写文件
+
+常见问题：Python的datetime对象不能直接序列化为JSON，需要先转成字符串。另外，JSON标准只支持双引号，单引号会导致解析失败。
+
+序列化就是把内存里的数据结构转成可以存储或传输的格式，反序列化则是反过来。
+
+文件读取与写入
+
+Python读取文件的标准写法：
+```python
+with open('data.txt', 'r', encoding='utf-8') as f:
+    content = f.read()
+```
+
+文件打开模式：'r' 只读、'w' 写入（覆盖）、'a' 追加、'r+' 读写。
+
+read() 一次性读整个文件，适合小文件。readline() 每次读一行。readlines() 返回所有行的列表，但大文件会爆内存。
+
+对于大文件，推荐用 for line in f 逐行迭代处理，内存友好。
+
+写入文件时注意 encoding='utf-8'，Windows 默认是 GBK，不指定编码会导致乱码。特别是处理中文内容时，UTF-8 是最通用的选择。
+
+字符编码
+
+计算机底层只认识数字，字符编码就是把字符映射到数字的规则。
+- ASCII：最早的编码，只支持英文和基本符号，一个字节
+- GBK/GB2312：中文编码方案，兼容ASCII
+- UTF-8：变长编码，兼容ASCII，支持全球所有语言，Web的事实标准
+
+Python 3 中 str 是 Unicode 字符串，bytes 是字节序列。两者之间通过 .encode() 和 .decode() 互相转换。
+
+常见坑：Windows控制台默认编码是GBK，打印UTF-8字符串会乱码。解决办法是设置标准输出的编码。
+
+日期和时间处理
+
+Python的datetime模块是处理日期时间的标准库。
+
+获取当前时间：datetime.now()
+格式化输出：.strftime('%Y-%m-%d %H:%M:%S')
+解析字符串：datetime.strptime('2024-01-15', '%Y-%m-%d')
+
+常用格式代码：%Y 四位年、%m 两位月、%d 两位日、%H 24小时制、%M 分钟、%S 秒。
+
+时间计算用 timedelta 对象。比如七天前：datetime.now() - timedelta(days=7)
+
+Python 3.9+ 可以用 zoneinfo 模块处理时区。3.7 版本用 pytz 第三方库。
+
+HTTP 请求与API通信
+
+Python 发送 HTTP 请求有三种主流方式：
+
+1. http.client（内置库）：最底层，需要手动构建请求头、处理连接。代码量大但学习价值高，能看清HTTP协议细节。
+
+2. requests（第三方库）：最流行的HTTP客户端。一行代码发请求，自动处理连接池、重定向、Cookie。安装：pip install requests
+
+3. urllib（内置库）：介于两者之间，比 http.client 高层但不如 requests 好用。
+
+requests 基本用法：
+```python
+import requests
+r = requests.get('https://api.example.com/data')
+r.json()  # 直接解析JSON响应
+```
+
+POST 请求发送 JSON 数据：requests.post(url, json={'key': 'value'})
+
+请求头设置：requests.get(url, headers={'Authorization': 'Bearer token'})
+
+异常处理：requests 会为网络错误抛出 ConnectionError，超时用 timeout 参数。
+
+列表和字典的高级操作
+
+列表推导式是Python最具特色的语法之一：
+```python
+squares = [x**2 for x in range(10)]  # 0到9的平方
+evens = [x for x in range(20) if x % 2 == 0]  # 0到20的偶数
+```
+
+字典推导式同样强大：
+```python
+word_lengths = {word: len(word) for word in ['hello', 'world', 'python']}
+```
+
+处理嵌套结构时，可以用 pprint 模块美化输出，调试必备。
+
+对字典列表排序用 sorted() 的 key 参数：sorted(users, key=lambda u: u['age'])
+
+深拷贝和浅拷贝是个经典坑。list.copy() 只做浅拷贝，嵌套列表的内部列表仍然共享引用。要用 copy.deepcopy() 做完全独立的复制。
+
+功能函数设计原则
+
+一个好的函数应该遵循单一职责原则：只做一件事，做好一件事。
+
+函数命名用动词开头：get_user()、calculate_total()、parse_config()。不要用 data()、process() 这种模糊的名字。
+
+类型提示可以增强代码可读性。Python 3.7 需要 from __future__ import annotations 才能用 list[str] 这样的写法。
+
+函数的参数设计：必选参数在前，可选参数（有默认值的）在后。不要用可变对象（如空列表[]）做默认参数，会导致意想不到的bug。
+
+正确的做法：def add_item(item, target=None): 然后在函数内 if target is None: target = []
+
+返回值和异常的选择：如果函数无法完成预期任务，优先抛出明确的异常（raise ValueError("..."）），而不是返回 None 或 -1，因为调用方容易忽略返回值检查。
+
+字符串处理实用技巧
+
+f-string 是 Python 3.6+ 最推荐的字符串格式化方式：
+```python
+name = "张三"
+print(f"你好，{name}！")  # 比 format() 和 % 更直观
+```
+
+去除空白：strip()、lstrip()、rstrip()
+分割和拼接：split() 分割成列表，join() 把列表拼成字符串
+查找替换：find() 返回位置（找不到返回-1），replace() 替换子串
+
+判断字符串内容：isdigit() 是否纯数字、isalpha() 是否纯字母、startswith() 和 endswith() 判断前后缀。
+
+正则表达式用于复杂模式匹配，re 模块。常用：re.search() 搜索、re.findall() 查找所有、re.sub() 替换。
