@@ -6,7 +6,7 @@
 >
 > 一个完整可运行的 RAG（检索增强生成）系统，从底层 Embedding 到前端展示全部手写实现。
 >
-> 📖 **[免费部署指南](DEPLOY_GUIDE.md)** — 把项目部署到 Render + Streamlit Cloud，面试官可直接点击试用
+> 📖 **[免费部署指南](DEPLOY_GUIDE.md)** — 把项目部署到 Render + Streamlit Cloud
 
 ---
 
