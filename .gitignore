@@ -13,6 +13,7 @@ env/
 
 # 数据（不包含原始文件，仅排除数据库）
 data/chroma_db/
+data/vector_index.json
 
 # IDE
 .vscode/
